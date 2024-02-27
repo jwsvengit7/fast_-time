@@ -12,7 +12,9 @@ interface UserAttributes extends BaseModelAttributes {
   email: string;
   password: string;
   status?: boolean;
+  referer_link?: string;
   expired:Date; 
+  otp:number;
 
   role: UserRole;
 }
@@ -27,6 +29,8 @@ class User extends Model<UserAttributes, UserCreationAttributes> {
   public status!: boolean;
   public role!: UserRole;
   public expired!:Date; 
+  public otp!:number; 
+  public referer_link!:string;
   public createdAt!:Date
 
 
@@ -50,6 +54,14 @@ User.init({
     type: DataTypes.STRING,
     allowNull: false,
     unique: true,
+  },
+  otp: {
+    type: DataTypes.NUMBER,
+    allowNull: false,
+  },
+  referer_link: {
+    type: DataTypes.STRING,
+    allowNull: false,
   },
   status: {
     type: DataTypes.BOOLEAN,
