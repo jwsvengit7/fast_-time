@@ -1,22 +1,21 @@
 import { FindOptions } from "sequelize";
 import express,{Request,Response} from 'express'
 import User, { UserAttributes } from "../../domain/models/User";
-import { UserServices } from "./UserService";
 import EmailUtils from "../../utils/emailUtils";
 
-class UserVerification  {
+class UserVerification {
     private mail;
     constructor(){
         this.mail = new EmailUtils();
      
     }
-    public async verify_otp(req: Request, res: Response) {
+    public async VerifyOTPFastTime(req: Request, res: Response) {
         try {
             const { email, otp } = req.body;
             
             const existingUser = await User.findOne({
                 where: { email },
-            } as FindOptions<UserAttributes>);
+            } as FindOptions<UserAttributes>); 
             
             if (!existingUser) {
                 return res.status(404).json({ error: 'User not found' });
@@ -43,7 +42,7 @@ class UserVerification  {
         }
     }
 
-    public async resendOTPFromUser(req: Request, res: Response) {
+    public async ResendOTPFastTime(req: Request, res: Response) {
         try {
             const { email } = req.params;
             

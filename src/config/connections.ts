@@ -18,8 +18,8 @@ const sequelize = new Sequelize(dbDatabase,dbUser,dbPassword,{
 }); 
 
 
-
-
+ 
+ 
 export const connection = ()=>{
   sequelize.sync({ force: true })    
   .then(() => {

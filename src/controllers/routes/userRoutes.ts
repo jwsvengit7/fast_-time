@@ -3,7 +3,8 @@ import { userCreation,userVerification } from "../../utils/obejctCreationUtils";
 
 const router = express.Router();
 
-router.post("/register",userCreation.register)
-router.post("/verify-otp",userVerification.verify_otp)
+router.post("/register",userCreation.RegsiterUserFastTime)
+router.post("/verify-otp",userVerification.VerifyOTPFastTime)
+router.get("/resend-otp",userVerification.ResendOTPFastTime)
 
-export default router;
+export default router;   

@@ -5,17 +5,17 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import userRoutes from "./controllers/routes/userRoutes";
 
-connection();
 
 const app:any = express();
 const corsOptions = {
     origin: '*', 
     methods: 'GET,POST,PUT,DELETE', 
-    allowedHeaders: 'Content-Type',
+    allowedHeaders: 'Content-Type', 
 };
 
 app.use(cors(corsOptions));
 
+connection();
 
 app.use(bodyParser.urlencoded({ extended: false })); 
 app.use(bodyParser.json()); 

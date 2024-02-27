@@ -11,11 +11,10 @@ interface UserAttributes extends BaseModelAttributes {
   username: string;
   email: string;
   password: string;
-  status?: boolean;
-  referer_link?: string;
+  status: boolean;
+  referer_link: string;
   expired:Date; 
   otp:number;
-
   role: UserRole;
 }
 
@@ -27,11 +26,11 @@ class User extends Model<UserAttributes, UserCreationAttributes> {
   public email!: string;
   public password!: string;
   public status!: boolean;
+  public referer_link!:string;  
   public role!: UserRole;
   public expired!:Date; 
   public otp!:number; 
-  public referer_link!:string;
-  public createdAt!:Date
+  public createdAt!:Date;
 
 
   public static associate() {
@@ -54,25 +53,25 @@ User.init({
     type: DataTypes.STRING,
     allowNull: false,
     unique: true,
-  },
+  }, 
   otp: {
     type: DataTypes.NUMBER,
     allowNull: false,
   },
-  referer_link: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
+
   status: {
     type: DataTypes.BOOLEAN,
-    allowNull: true,
+    allowNull: false,
 
   },
   password: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-
+  referer_link: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
   expired: {
     type: DataTypes.DATE,
     allowNull: false,

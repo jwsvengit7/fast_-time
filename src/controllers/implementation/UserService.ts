@@ -5,15 +5,15 @@ import User, {
 } from "../../domain/models/User";
 import { FindOptions } from "sequelize";
 import EmailUtils from "../../utils/emailUtils";
-class UserServices {
+class UserServices { 
   private mail;
 
   constructor() {
-    this.register = this.register.bind(this);
+    this.RegsiterUserFastTime = this.RegsiterUserFastTime.bind(this);
     this.mail = new EmailUtils();
   }
 
-  public async register(req: Request, res: Response) {
+  public async RegsiterUserFastTime(req: Request, res: Response) {
     try {
       const { username, email, password, role } = req.body;
       if (!username || !email || !password) {
@@ -45,9 +45,11 @@ class UserServices {
             existingUser.expired=otpData.expiry
             return res
         .status(200)
-        .json({ msg: "User register Verify your account " });
+        .json({ msg: "User register Verify your account " }); 
       }
       }else{
+
+        const REFERERLINK = req.originalUrl;
 
       const newUser: UserCreationAttributes = { 
         username,
@@ -55,6 +57,7 @@ class UserServices {
         password: hashedPassword,
         status:false,
         role,
+        referer_link:REFERERLINK,
         otp:otpData.otp,
         expired:otpData.expiry,
         createdAt: new Date(),

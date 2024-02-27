@@ -15,7 +15,7 @@ interface UserOrAdminDocument {
   }
 
 
-export default class EmailUtils{
+export default class EmailUtils{ 
     private jwtsecret = "" ;
     private server =MAIL_SERVER ;
     private port = MAIL_PORT ;
