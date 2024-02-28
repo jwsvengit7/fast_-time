@@ -3,49 +3,78 @@ import nodemailer from "nodemailer";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import User from "../domain/models/User";
-import { MAIL_PASSWORD, MAIL_PORT, MAIL_SERVER, MAIL_USER } from "./valuesUtils";
+import { MAIL_PASSWORD, MAIL_PORT, MAIL_SERVER, MAIL_USER,SECRET } from "./valuesUtils";
 import dotenv from 'dotenv';
-import signupTemplate from "./templates";
+import {signupTemplateForLink,signupTemplate} from "./templates";
 
 dotenv.config();
 
 interface UserOrAdminDocument {
     id: number; 
     email: string;
+    app:string;
+    product_code:string
+
+  }
+
+  interface UserOrAdminLinkDocument {
+    time: Date;
+    app:string;
+    product_code:string
   }
 
 
-export default class EmailUtils{ 
-    private jwtsecret = "" ;
-    private server =MAIL_SERVER ;
-    private port = MAIL_PORT ;
-    private password =MAIL_PASSWORD ;
-    private user =MAIL_USER 
-    
-    constructor(){
+ class EmailUtils { 
 
-    }
-public generateOtp = () => {
-  const otp = Math.floor(100000 + Math.random() * 900000);
-  const expiry = new Date();
-  expiry.setTime(new Date().getTime() + 30 * 60 * 1000);
-  return { otp, expiry };
-};
+ 
+    public static generateOtp = () => {
+        const otp = Math.floor(100000 + Math.random() * 900000);
+        const expiry = new Date();
+        expiry.setTime(new Date().getTime() + 30 * 60 * 1000);
+        return { otp, expiry };
+      };
+
+      
+      public static generateLink = ( 
+        res: Response) => {
+        const expiry = new Date();
+        expiry.setTime(new Date().getTime() + 50 * 60 * 100);
+        const payload:UserOrAdminLinkDocument = {
+            time: expiry,
+            app:"FAST_TIME",
+            product_code:"00943"
+          };
+        
+          try {
+            const token = jwt.sign(payload, SECRET, { expiresIn: "5min" });
+            res.cookie("token", token, {
+              httpOnly: true,
+              maxAge: 30 * 24 * 60 * 60 * 1000,
+            });
+            return token;
+          } catch (error) {
+            console.error(error);
+            throw new Error("Error generating link");
+          }
+      };
+      
 
 
 
-
-public  generateToken = (
+public  static generateToken = (
   user: User,
   res: Response
-) => {
+) => { 
   const payload: UserOrAdminDocument = {
     id: user.id,
     email: user.email,
+    app:"FAST_TIME",
+    product_code:"00945"
+
   };
 
   try {
-    const token = jwt.sign(payload, this.jwtsecret, { expiresIn: "30d" });
+    const token = jwt.sign(payload, SECRET, { expiresIn: "30d" });
     res.cookie("token", token, {
       httpOnly: true,
       maxAge: 30 * 24 * 60 * 60 * 1000,
@@ -57,12 +86,12 @@ public  generateToken = (
   }
 };
 
-public  validateToken = (
+public static validateToken = (
   user: User ,
   token: string
 ) => {
   try {
-    const decodedToken: any = jwt.verify(token, this.jwtsecret);
+    const decodedToken: any = jwt.verify(token, SECRET);
     if (decodedToken.id !== user.id || decodedToken.email !== user.email) {
       return false;
     }
@@ -77,25 +106,25 @@ public  validateToken = (
   }
 };
 
-public  GenerateSalt = async () => {
+static GenerateSalt = async function()  {
   return await bcrypt.genSalt();
 };
 
-public  GeneratePassword = async (password: string, salt: string) => {
+public static  GeneratePassword = async (password: string, salt: string) => {
   return await bcrypt.hash(password, salt);
 };
 
-public  sendVerificationOTP = async (email: string, otp: number) => {
+public static sendVerificationOTP = async (email: string, otp: number) => {
   
   try {
     const transporter = nodemailer.createTransport({
-      host: this.server,
-      port:this.port,
+      host: MAIL_SERVER,
+      port:MAIL_PORT,
 
       secure: false,
       auth: {
-        user: this.user,
-        pass: this.password, 
+        user: MAIL_USER,
+        pass: MAIL_PASSWORD, 
       },
     }) ;
 
@@ -108,16 +137,17 @@ public  sendVerificationOTP = async (email: string, otp: number) => {
   }
 };
 
-public  sendVerificationEmail = async (email: string,user:User) => {
+public static sendVerificationEmail = async (email: string,user:User) => {
   try {
     const transporter = nodemailer.createTransport({
-        host: this.server,
-        port:this.port,
-
-      auth: {
-        user: this.user,
-        pass: this.password,
-      },
+        host: MAIL_SERVER,
+        port:MAIL_PORT,
+  
+        secure: false,
+        auth: {
+          user: MAIL_USER,
+          pass: MAIL_PASSWORD, 
+        },
     });
 
     const mailOptions = {
@@ -138,33 +168,22 @@ public  sendVerificationEmail = async (email: string,user:User) => {
     console.error(error);
     throw new Error("Error sending verification email");
   }
-};
+}; 
 
-public  sendPasswordResetOTP = async (email: string, otp: number) => {
+public static  sendPasswordResetLink = async (email: string, link: string) => {
   try {
     const transporter = nodemailer.createTransport({
-        host: this.server,
-        port: this.port,
+      host: MAIL_SERVER,
+      port:MAIL_PORT,
+
+      secure: false,
       auth: {
-        user: this.user,
-        pass: this.password,
+        user: MAIL_USER,
+        pass: MAIL_PASSWORD, 
       },
     });
 
-    const mailOptions = {
-      from: "Fast Time <chiorlujack@gmail.com>",
-      to: email,
-      subject: "Password Reset OTP",
-      html: `
-   <div style="max-width:700px; font-size:110%; border:10px solid #ddd; 
-  padding:50px 20px; margin:auto; ">
-  <p>Your OTP to reset your password is:</p>
-    <h1>${otp}</h1>
-    <p>Please enter this OTP to reset your password.</p>
-    <p>Note that the OTP is only valid for 30 minutes.</p>
-    <p>If you did not make this request, please ignore this email.</p>
-    `, 
-    };
+    const mailOptions = signupTemplateForLink(email,link) 
 
     await transporter.sendMail(mailOptions);
   } catch (error) { 
@@ -174,3 +193,5 @@ public  sendPasswordResetOTP = async (email: string, otp: number) => {
 };
 
 }
+
+export default EmailUtils; 

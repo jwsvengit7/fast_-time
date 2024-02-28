@@ -4,8 +4,9 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
 import { MyJwtPayload } from "../utils/utils";
+import { SECRET } from "../utils/valuesUtils";
 export default class AuthFilter{
-    private jwtsecret = "" as string
+    private jwtsecret = SECRET as string
     constructor(){
 
     }
@@ -25,9 +26,10 @@ export default class AuthFilter{
     }
 
     console.log("Token:", token);
-    const decodedToken = jwt.verify(token, this.jwtsecret) as MyJwtPayload;
+    const decodedToken = this.verifyToken(token)
     console.log("Decoded Token:", decodedToken);
     req.userId = decodedToken.userId;
+    console.log(decodedToken.role);
 
     next();
   } catch (error) {
@@ -35,5 +37,24 @@ export default class AuthFilter{
     return res.status(401).json({ message: "Invalid or expired token" });
   }
 };
+
+
+  verifyJWT(token:string) {
+    const decodedToken = this.verifyToken(token)
+   const time =  decodedToken.time;
+   const currentDateTime = new Date();
+   console.log(time)
+   console.log(currentDateTime)
+   if (time < currentDateTime) {
+       return false
+   }
+    return  true;
+
+}
+
+verifyToken(token:string){
+    return  jwt.verify(token, this.jwtsecret) as MyJwtPayload;
+
+}
 
 }

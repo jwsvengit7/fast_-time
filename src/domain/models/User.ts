@@ -14,6 +14,7 @@ interface UserAttributes extends BaseModelAttributes {
   status: boolean;
   referer_link: string;
   expired:Date; 
+  token?:string; 
   otp:number;
   role: UserRole;
 }
@@ -29,6 +30,7 @@ class User extends Model<UserAttributes, UserCreationAttributes> {
   public referer_link!:string;   
   public role!: UserRole;
   public expired!:Date; 
+  public token!:string; 
   public otp!:number; 
   public createdAt!:Date;
 
@@ -59,9 +61,8 @@ User.init({
     allowNull: false,
   },
 
-
   password: {
-    type: DataTypes.STRING,
+    type: DataTypes.VIRTUAL,
     allowNull: false,
   },
   status: {
@@ -77,6 +78,10 @@ User.init({
     type: DataTypes.DATE,
     allowNull: false,
   },
+  token: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
   role: {
     type: DataTypes.ENUM(...Object.values(UserRole)), 
     allowNull: false,
@@ -90,6 +95,8 @@ User.init({
     type: DataTypes.DATE,
     allowNull: true,
   },
+
+
 }, {
   sequelize,
   tableName: 'users',

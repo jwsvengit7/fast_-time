@@ -10,18 +10,12 @@ export const createAdminValidator = Joi.object({
     .messages({
       "string.pattern.base": "Password must contain only alphabets and numbers",
     }),
-  confirm_password: Joi.string()
-    .valid(Joi.ref("password"))
-    .required()
-    .label("Confirm password")
-    .messages({ "any.only": "Confirm password does not match" }), 
+
 });
 
 export const createUserValidator = Joi.object({
-  firstName: Joi.string().required(),
-  lastName: Joi.string().required(),
-  userName: Joi.string().required(),
-  employeeId: Joi.string().required(),
+  username: Joi.string().required(),
+  role: Joi.string().required(),
   email: Joi.string().trim().lowercase().required(),
   password: Joi.string()
     .pattern(/^[a-zA-Z0-9]{4,8}$/)
@@ -30,11 +24,7 @@ export const createUserValidator = Joi.object({
     .messages({
       "string.pattern.base": "Password must contain only alphabets and numbers",
     }),
-  confirm_password: Joi.string()
-    .valid(Joi.ref("password"))
-    .required()
-    .label("Confirm password")
-    .messages({ "any.only": "Confirm password does not match" }),
+
 });
 
 export const loginUserSchema = Joi.object().keys({

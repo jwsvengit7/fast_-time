@@ -1,51 +1,61 @@
 import express, { Response, Request } from "express";
 import User, {
-  UserAttributes,
+  
   UserCreationAttributes,
 } from "../../domain/models/User";
-import { FindOptions } from "sequelize";
+import UsersRepositories from "../../domain/repositories/UserRepository";
+import { createUserValidator, variables } from "../../utils/utils";
 import EmailUtils from "../../utils/emailUtils";
-class UserServices { 
-  private mail;
+class UserServices   { 
 
-  constructor() {
-    this.RegsiterUserFastTime = this.RegsiterUserFastTime.bind(this);
-    this.mail = new EmailUtils();
-  }
+
 
   public async RegsiterUserFastTime(req: Request, res: Response) {
-    try {
+    try { 
+      const validationResult = createUserValidator.validate(req.body, variables);
+
+      if (validationResult.error) {
+        return res
+          .status(400)
+          .json({ error: validationResult.error.details[0].message });
+      }
       const { username, email, password, role } = req.body;
+
       if (!username || !email || !password) {
         return res
           .status(400)
           .json({ error: "Please provide username, email, and password" });
       }
 
-      const salt = await this.mail.GenerateSalt();
-      const hashedPassword: string = await this.mail.GeneratePassword(
+
+      console.log(12)
+
+      const salt = await EmailUtils.GenerateSalt();
+      const hashedPassword: string = await EmailUtils.GeneratePassword(
         password,
         salt
       );
 
-      const existingUser = await User.findOne({
-        where: { email },
-      } as FindOptions<UserAttributes>);
+      const existingUser = await UsersRepositories.findUser(email,"email");
       if (existingUser && existingUser.status) {
         return res
           .status(400)
           .json({ error: "User with this email already exists" });
       }
-      const otpData = this.mail.generateOtp(); 
+
+      console.log(123)
+
+      const otpData = EmailUtils.generateOtp(); 
 
       if(existingUser !=null ){
         if(!existingUser.status){
-            await this.mail.sendVerificationOTP(email, otpData.otp); 
+            await EmailUtils.sendVerificationOTP(email, otpData.otp); 
             existingUser.otp=otpData.otp
             existingUser.expired=otpData.expiry
+            await  existingUser.save()
             return res
         .status(200)
-        .json({ msg: "User register Verify your account " }); 
+        .json({ msg: "User register Verify your account via otp " }); 
       }
       }else{
 
@@ -63,8 +73,8 @@ class UserServices {
         createdAt: new Date(),
       };
       
-      const saveUser = await User.create(newUser);
-      await this.mail.sendVerificationOTP(email, otpData.otp); 
+      await User.create(newUser);
+      await EmailUtils.sendVerificationOTP(email, otpData.otp); 
 
 
       return res
