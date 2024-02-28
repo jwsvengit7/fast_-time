@@ -26,7 +26,7 @@ class User extends Model<UserAttributes, UserCreationAttributes> {
   public email!: string;
   public password!: string;
   public status!: boolean;
-  public referer_link!:string;  
+  public referer_link!:string;   
   public role!: UserRole;
   public expired!:Date; 
   public otp!:number; 
@@ -55,18 +55,19 @@ User.init({
     unique: true,
   }, 
   otp: {
-    type: DataTypes.NUMBER,
+    type: DataTypes.INTEGER,
     allowNull: false,
   },
 
-  status: {
-    type: DataTypes.BOOLEAN,
-    allowNull: false,
 
-  },
   password: {
     type: DataTypes.STRING,
     allowNull: false,
+  },
+  status: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    
   },
   referer_link: {
     type: DataTypes.STRING,

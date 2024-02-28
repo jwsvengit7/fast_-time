@@ -15,12 +15,12 @@ const sequelize = new Sequelize(dbDatabase,dbUser,dbPassword,{
     host:dbHost,
     port: dbPort,
     logging: false
-}); 
-
+}
+); 
 
  
- 
-export const connection = ()=>{
+
+export const connection = ()=> {
   sequelize.sync({ force: true })    
   .then(() => {
     console.log('Database tables synchronized successfully');
